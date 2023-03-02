@@ -1,0 +1,14 @@
+{
+  "name": "formbuilder",
+  "version": "0.0.1",
+  "description": "Form Builder",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Andrew Foo",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.4.3"
+  }
+}
