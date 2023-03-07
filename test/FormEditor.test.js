@@ -29,7 +29,9 @@ describe("Form Editor", () => {
     });
 
     describe("No fields contained in Form Editor", () => {
+
         describe("Alert message", () => {
+
             it("renders alert title", () => {
                 const title = "No fields selected";
                 render(<FormEditor />);
@@ -41,9 +43,11 @@ describe("Form Editor", () => {
                 render(<FormEditor />);
                 expect(document.getElementsByClassName("alertBody")[0].textContent).toContain(body);
             });
+
         });
 
         describe("Drop area", () => {
+
             it("renders area", () => {
                 render(<FormEditor />);
                 expect(document.getElementsByClassName("dropArea")[0]).not.toBe(undefined);
@@ -54,6 +58,7 @@ describe("Form Editor", () => {
                 render(<FormEditor />);
                 expect(document.getElementsByClassName("dropBody")[0].textContent).toContain(body);
             });
+            
         });
     });
 });
