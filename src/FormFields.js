@@ -27,6 +27,7 @@ export const FormFields = () => (
         <hr></hr>
         {Object.keys(fields).map((item, i) => (
             <FieldTile
+                key={i}
                 id={item}
                 title={fields[item]}
             />
