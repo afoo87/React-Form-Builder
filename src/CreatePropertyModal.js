@@ -1,9 +1,11 @@
-import React from "react";
+import React, {useState} from "react";
 
 export const CreatePropertyModal = ({
-    basicInfo,
-    step
+    basicInfo
 }) => {
+
+    const [step, setStep] = useState(1);
+
     return (
         <div>
             <div className="modalHeader">
@@ -21,7 +23,7 @@ export const CreatePropertyModal = ({
                         <span className="stepIndicatorText">Field Type</span>
                     </div>
                 </div>
-                {(!basicInfo.label && step === 1) ? (
+                {(step === 1 || !basicInfo.label) ? (
                     <div id="basicInfoStep">
                         <div>
                             <label htmlFor="labelInput">Label *</label>
@@ -46,15 +48,34 @@ export const CreatePropertyModal = ({
                 )}
             </div>
             <div className="modalFooter">
-                { step === 2 && <button className="modalBackBtn">Back</button> }
+                { step === 2 && 
+                    <button 
+                        className="modalBackBtn" 
+                        onClick={() => setStep(1)}
+                    >
+                        Back
+                    </button>
+                }
                 <button className="modalCancelBtn">Cancel</button>
-                <button className="modalNextBtn" disabled={!basicInfo.label}>Next</button>
+                {(step === 1) ? (
+                    <button 
+                        className="modalNextBtn" 
+                        disabled={!basicInfo.label}
+                        onClick={() => setStep(2)}>
+                            Next
+                    </button>
+                ): (
+                    <button 
+                        className="modalCreateBtn"
+                    >
+                            Create
+                    </button>
+                )}
             </div>
         </div>
     )
 };
 
 CreatePropertyModal.defaultProps = {
-    basicInfo: { label: "" },
-    step: 1
+    basicInfo: { label: "" }
 };

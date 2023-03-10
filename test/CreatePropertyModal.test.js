@@ -2,6 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { CreatePropertyModal } from "../src/CreatePropertyModal";
+import {
+    buttonWithClass,
+    element,
+    elements,
+    clickAndWait
+} from "./testExtensions";
 
 describe("CreatePropertyModal", () => {
 
@@ -32,24 +38,24 @@ describe("CreatePropertyModal", () => {
 
                 it("renders active step point", () => {
                     render(<CreatePropertyModal />);
-                    expect(document.getElementsByClassName("stepIndicatorPoint")[0]).not.toBeNull();
+                    expect(elements(".stepIndicatorPoint")[0]).not.toBeNull();
                 });
 
                 it("renders active step indicator text", () => {
                     render(<CreatePropertyModal />);
-                    expect(document.getElementsByClassName("stepIndicatorText")[0].textContent).toContain("Basic Info");
+                    expect(elements(".stepIndicatorText")[0].textContent).toContain("Basic Info");
                 });
             });
             
             describe("Field Type", () => {
                 it("renders step point", () => {
                     render(<CreatePropertyModal />);
-                    expect(document.getElementsByClassName("stepIndicatorPoint")[1]).not.toBeNull();
+                    expect(elements(".stepIndicatorPoint")[1]).not.toBeNull();
                 });
 
                 it("renders step indicator text", () => {
                     render(<CreatePropertyModal />);
-                    expect(document.getElementsByClassName("stepIndicatorText")[1].textContent).toContain("Field Type");
+                    expect(elements(".stepIndicatorText")[1].textContent).toContain("Field Type");
                 });
             });
 
@@ -58,106 +64,99 @@ describe("CreatePropertyModal", () => {
         describe("Body", () => {
 
             describe("BasicInfoStep", () => {
-            
+
                 describe("Label Field", () => {
-    
+
                     it("renders label", () => {
-                        const step = 1;
-                        render(<CreatePropertyModal step={step} />);
-                        expect(document.querySelector("label[for=labelInput]")).not.toBeNull();
+                        render(<CreatePropertyModal />);
+                        expect(element("label[for=labelInput]")).not.toBeNull();
                     });
 
                     it("renders 'Label' as content", () => {
-                        const step = 1;
-                        render(<CreatePropertyModal step={step} />);
-                        expect(document.querySelector("label[for=labelInput]").textContent).toContain("Label *");
+                        render(<CreatePropertyModal />);
+                        expect(element("label[for=labelInput]").textContent).toContain("Label *");
                     });
-        
+
                     it("renders text field", () => {
-                        const step = 1;
-                        render(<CreatePropertyModal step={step} />);
-                        expect(document.getElementById("labelInput")).not.toBeNull();
+                        render(<CreatePropertyModal />);
+                        expect(element("#labelInput")).not.toBeNull();
                     });
 
                     it("initially renders an empty text field", () => {
-                        const step = 1;
-                        render(<CreatePropertyModal step={step} />);
-                        expect(document.getElementById("labelInput").textContent).toBe("");
+                        render(<CreatePropertyModal />);
+                        expect(element("#labelInput").textContent).toBe("");
                     });
                 });
     
                 describe("Description Field", () => {
                     
                     it("renders label", () => {
-                        const step = 1;
-                        render(<CreatePropertyModal step={step} />);
-                        expect(document.querySelector("label[for=fieldDescription")).not.toBeNull();
+                        render(<CreatePropertyModal />);
+                        expect(element("label[for=fieldDescription")).not.toBeNull();
                     });
                     
     
                     it("renders 'Description' as label content", () => {
-                        const step = 1;
-                        render(<CreatePropertyModal step={step} />);
-                        expect(document.querySelector("label[for=fieldDescription").textContent).toContain("Description");
+                        render(<CreatePropertyModal />);
+                        expect(element("label[for=fieldDescription").textContent).toContain("Description");
                     });
     
                     it("renders text field", () => {
-                        const step = 1;
-                        render(<CreatePropertyModal step={step} />);
-                        expect(document.getElementById("fieldDescription")).not.toBeNull();
+                        render(<CreatePropertyModal />);
+                        expect(element("#fieldDescription")).not.toBeNull();
                     });
 
                 });
 
-                it("renders BasicInfoStep when back button is clicked", () => {
+                it("renders BasicInfoStep when back button is clicked", async () => {
                     const basicInfo = { label: "First name" };
-                    const step = 2;
                     render(
                         <CreatePropertyModal
                             basicInfo={basicInfo}
-                            step={step}
                         />
                     );
-                    expect(
-                        document.getElementById("basicInfoStep")
-                    ).not.toBeNull();
+                    await clickAndWait(buttonWithClass("modalNextBtn"));
+                    await clickAndWait(buttonWithClass("modalBackBtn"));
+                    expect(element("#basicInfoStep")).not.toBeNull();
                 });
             });
 
             describe("FieldTypeStep", () => {
-                it("does not render BasicInfoStep", () => {
+                it("does not render BasicInfoStep after clicking Next", async () => {
                     const basicInfo = { label: "First name" };
-                    const step = 2;
                     render(
                         <CreatePropertyModal
                             basicInfo={basicInfo}
-                            step={step}
                         />
                     );
-                    expect(
-                        document.getElementById("basicInfoStep")
-                    ).toBeNull();
+                    await clickAndWait(buttonWithClass("modalNextBtn"));
+                    expect(element("#basicInfoStep")).toBeNull();
                 });
 
-                it("renders FieldTypeStep", () => {
+                it("does not render FieldTypeStep when clicking Next if label field is empty", async () => {
+                    render(<CreatePropertyModal />);
+                    await clickAndWait(buttonWithClass("modalNextBtn"));
+                    expect(element("#fieldTypeStep")).toBeNull();
+                });
+
+                it("renders FieldTypeStep", async () => {
                     const basicInfo = { label: "First name" };
-                    const step = 2;
                     render(
                         <CreatePropertyModal
                             basicInfo={basicInfo}
-                            step={step}
                         />
                     );
-                    expect(
-                        document.getElementById("fieldTypeStep")
-                      ).not.toBeNull();
+                    await clickAndWait(buttonWithClass("modalNextBtn"));
+                    expect(element("#fieldTypeStep")).not.toBeNull();
                 });
 
-                it("renders label as title", () => {
+                it("renders label as title", async () => {
                     const basicInfo = { label: "First name" }
                     render(<CreatePropertyModal basicInfo={basicInfo} />);
-                    expect(document.querySelector("h4.fieldPropertyName").textContent).toBe("First name");
+                    await clickAndWait(buttonWithClass("modalNextBtn"));
+                    expect(element("h4.fieldPropertyName").textContent).toBe("First name");
                 });
+
 
                 /*
                 it("renders field type - Checkboxes", () => {
@@ -174,13 +173,16 @@ describe("CreatePropertyModal", () => {
                     });
                 });
 
-                it("renders search label", () => {
+                describe("Search", () => {
+                    it("renders search label", () => {
 
+                    });
+
+                    it("renders search field", () => {
+
+                    });
                 });
-
-                it("renders search field", () => {
-
-                });
+                
 
                 it("renders options table", () => {
 
@@ -198,47 +200,55 @@ describe("CreatePropertyModal", () => {
         describe("Cancel", () => {
             it("renders button", () => {
                 render(<CreatePropertyModal />);
-                expect(document.querySelector("button.modalCancelBtn")).not.toBeNull();
+                expect(buttonWithClass("modalCancelBtn")).not.toBeNull();
             });
 
             it("renders content", () => {
                 render(<CreatePropertyModal />);
-                expect(document.querySelector("button.modalCancelBtn").textContent).toContain("Cancel");
+                expect(buttonWithClass("modalCancelBtn").textContent).toContain("Cancel");
             });
         });
 
         describe("Next", () => {
             it("renders button", () => {
                 render(<CreatePropertyModal />);
-                expect(document.querySelector("button.modalNextBtn")).not.toBeNull();
+                expect(buttonWithClass("modalNextBtn")).not.toBeNull();
             });
 
             it("initially renders button disabled", () => {
                 render(<CreatePropertyModal />);
-                expect(document.querySelector("button.modalNextBtn").disabled).toBe(true);
+                expect(buttonWithClass("modalNextBtn").disabled).toBe(true);
             });
 
             it("renders button content", () => {
                 render(<CreatePropertyModal />);
-                expect(document.querySelector("button.modalNextBtn").textContent).toContain("Next");
+                expect(buttonWithClass("modalNextBtn").textContent).toContain("Next");
             });
 
             it("renders enabled button when label field is filled", () => {
                 const basicInfo = { label: "First name" };
                 render(<CreatePropertyModal basicInfo={basicInfo} />);
-                expect(document.querySelector("button.modalNextBtn").disabled).toBe(false);
+                expect(buttonWithClass("modalNextBtn").disabled).toBe(false);
             });
         });
 
         describe("Back", () => {
-            it("renders button", () => {
-                const step = 2;
+            it("renders button", async () => {
                 const basicInfo = { label: "First name"};
-                render(<CreatePropertyModal basicInfo={basicInfo} step={step} />);
-                expect(document.querySelector("button.modalBackBtn")).not.toBeNull();
+                render(<CreatePropertyModal basicInfo={basicInfo} />);
+                await clickAndWait(buttonWithClass("modalNextBtn"));
+                expect(buttonWithClass("modalBackBtn")).not.toBeNull();
             });
         });
         
+        describe("Create", () => {
+            it("renders button", async () => {
+                const basicInfo = { label: "First name"};
+                render(<CreatePropertyModal basicInfo={basicInfo} />);
+                await clickAndWait(buttonWithClass("modalNextBtn"));
+                expect(buttonWithClass("modalCreateBtn")).not.toBeNull();
+            });
+        });
     });
         
 });

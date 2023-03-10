@@ -2,6 +2,10 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { FormEditor } from "../src/FormEditor";
+import {
+    element,
+    elements
+} from "./testExtensions";
 
 describe("Form Editor", () => {
 
@@ -20,12 +24,12 @@ describe("Form Editor", () => {
 
     it("renders a form", () => {
         render(<FormEditor />);
-        expect(document.querySelector("form")).not.toBeNull();
+        expect(element("form")).not.toBeNull();
     });
 
     it("renders a submit button", () => {
         render(<FormEditor />);
-        expect(document.querySelector("input[type=submit]")).not.toBeNull();
+        expect(element("input[type=submit]")).not.toBeNull();
     });
 
     describe("No fields contained in Form Editor", () => {
@@ -35,13 +39,13 @@ describe("Form Editor", () => {
             it("renders alert title", () => {
                 const title = "No fields selected";
                 render(<FormEditor />);
-                expect(document.getElementsByClassName("alertTitle")[0].textContent).toContain(title);
+                expect(elements(".alertTitle")[0].textContent).toContain(title);
             });
 
             it("renders alert body", () => {
                 const body = "You must have at least one field on your form to publish.";
                 render(<FormEditor />);
-                expect(document.getElementsByClassName("alertBody")[0].textContent).toContain(body);
+                expect(elements(".alertBody")[0].textContent).toContain(body);
             });
 
         });
@@ -50,15 +54,15 @@ describe("Form Editor", () => {
 
             it("renders area", () => {
                 render(<FormEditor />);
-                expect(document.getElementsByClassName("dropArea")[0]).not.toBe(undefined);
+                expect(elements(".dropArea")[0]).not.toBe(undefined);
             });
 
             it("renders body", () => {
                 const body = "Drag and drop a form field here";
                 render(<FormEditor />);
-                expect(document.getElementsByClassName("dropBody")[0].textContent).toContain(body);
+                expect(elements(".dropBody")[0].textContent).toContain(body);
             });
-            
+
         });
     });
 });
