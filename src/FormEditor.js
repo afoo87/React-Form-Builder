@@ -11,16 +11,43 @@ export const FormEditor = ({fields}) => {
         setActiveField(null);
     };
 
-    getFieldComponent = (fieldType) => {
-        switch(fieldType) {
+    getFieldComponent = (item) => {
+        switch(item.fieldType) {
             case "single-lined text":
                 return (
                     <input type="text" style={{ pointerEvents: 'none' }}></input>
                 );
-            case "multiline text":
+            case "multi-line text":
                 return (
                     <textarea></textarea>
-                )
+                );
+            case "number":
+                return (
+                    <input type="number" style={{ pointerEvents: 'none' }}></input>
+                );
+            case "boolean checkbox":
+                return (
+                    <input type="checkbox" style={{ pointerEvents: 'none' }}></input>
+                );
+            case "checkboxes":
+                return (
+                    item.values.map((x, i) => {
+                        return <input type="checkbox" id={`${camelize(item.fieldLabel) + i}`} value={x} name={x}></input>
+                    })
+                );
+            case "dropdown":
+                return (
+                    <select>
+                        {!item.preselected &&
+                            <option selected value="">-- select an option --</option>
+                        }
+                        {item.values.map((x) => {
+                            return <option value={x} selected={item.preselected === x}>{x}</option>
+                        })}
+                    </select>
+                );
+            case "multi-line text":
+                return (<textarea></textarea>);
             default:
                 return (null);
         }
@@ -61,7 +88,7 @@ export const FormEditor = ({fields}) => {
                                             <div className="propertyName"><span>{item.propertyName}</span></div>
                                         </div>
                                     </label>
-                                    {getFieldComponent(item.fieldType)}
+                                    {getFieldComponent(item)}
                                 </div>
                             </div>
                         </div>
