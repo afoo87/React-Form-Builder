@@ -155,6 +155,44 @@ describe("Form Editor", () => {
             expect(element(`label[for=${camelize(fields[0].fieldLabel)}] .propertyName`).textContent).toContain('firstname');
         });
 
+        it("renders two fields in one row", () => {
+            const fields = [[{
+                fieldType: "single-lined text",
+                fieldLabel: 'firstName',
+                propertyName: 'firstname'
+            }, {
+                fieldType: "single-lined text",
+                fieldLabel: 'lastName',
+                propertyName: 'lastname'
+            }]];
+            render(<FormEditor fields={fields} />);
+            expect(elements(".form-field-container .row")[0].length).toBe(2);
+        });
+
+        it("renders three fields in one row", () => {
+            const fields = [{
+                fieldType: "single-lined text",
+                position: 1,
+                row: 1,
+                fieldLabel: 'firstName',
+                propertyName: 'firstname'
+            }, {
+                fieldType: "single-lined text",
+                position: 2,
+                row: 1,
+                fieldLabel: 'lastName',
+                propertyName: 'lastname'
+            }, {
+                fieldType: "single-lined text",
+                position: 3,
+                row: 1,
+                fieldLabel: 'nickname',
+                propertyName: 'nickname'
+            }];
+            render(<FormEditor fields={fields} />);
+            expect(elements(".form-field-container .row")[0].length).toBe(3);
+        });
+
         describe("Single-lined Field", () => {
             it("renders field", () => {
                 const fields = [{
@@ -271,7 +309,7 @@ describe("Form Editor", () => {
         });
 
         describe("Radio", () => {
-            it("renders field", () => {
+            it("renders buttons", () => {
                 const fields = [{
                     fieldType: "radio",
                     position: 1,
@@ -282,7 +320,23 @@ describe("Form Editor", () => {
                     propertyName: 'radio'
                 }];
                 render(<FormEditor fields={fields} />);
-                expect(element("input[type=radio]")).not.toBeNull();
+                fields[0].values.forEach((x) => {
+                    expect(element(`input[type=radio][value=${x}]`)).not.toBeNull();
+                });
+            });
+
+            it("initially has blank value chosen", () => {
+                const fields = [{
+                    fieldType: "radio",
+                    position: 1,
+                    row: 1,
+                    values: ["apple", "banana"],
+                    preselected: "apple",
+                    fieldLabel: 'Fruit Radio',
+                    propertyName: 'radio'
+                }];
+                render(<FormEditor fields={fields} />);
+                expect(element("input[type=radio]:checked")).toBeNull();
             });
         });
 
@@ -298,6 +352,95 @@ describe("Form Editor", () => {
                 }];
                 render(<FormEditor fields={fields} />);
                 expect(element("h1").textContent).toContain("This is a sample header.");
+            });
+        });
+    });
+
+    describe("Drop Targets", () => {
+        describe("Form Field", () => {
+            it("renders Field Group Drop Targets", () => {
+                const fields = [{
+                    fieldType: "single-lined text",
+                    position: 1,
+                    row: 1,
+                    fieldLabel: 'firstName',
+                    propertyName: 'firstname'
+                }];
+                const draggingFormField = {
+                    fieldType: "radio"
+                };
+                render(
+                    <FormEditor 
+                        draggingField={draggingFormField} 
+                        fields={fields} 
+                    />
+                );
+                expect(elements(".fieldGroupDropTarget").length).toBe(2);
+            });
+
+            it("renders Form Field Drop Targets", () => {
+                const fields = [{
+                    fieldType: "single-lined text",
+                    position: 1,
+                    row: 1,
+                    fieldLabel: 'firstName',
+                    propertyName: 'firstname'
+                }];
+                const draggingFormField = {
+                    fieldType: "radio"
+                };
+                render(
+                    <FormEditor 
+                        draggingField={draggingFormField} 
+                        fields={fields} 
+                    />
+                );
+                expect(elements(".formFieldDropTarget").length).toBe(2);
+            });
+        });
+
+        describe("Existing Field", () => {
+            it("renders Field Group Drop Targets", () => {
+                const fields = [{
+                    fieldType: "single-lined text",
+                    position: 1,
+                    row: 1,
+                    fieldLabel: 'firstName',
+                    propertyName: 'firstname'
+                }, {
+                    fieldType: "single-lined text",
+                    position: 2,
+                    row: 1,
+                    fieldLabel: 'lastName',
+                    propertyName: 'lastname'
+                }];
+                const draggingFormField = {
+                    row: 1,
+                    position: 2
+                }
+                render(
+                    <FormEditor 
+                        draggingField={draggingFormField} 
+                        fields={fields} 
+                    />
+                );
+                expect(elements(".fieldGroupDropTarget").length).toBe(2);
+            });
+
+            it.skip("renders Form Field Drop Targets", () => {
+                const fields = [{
+                    fieldType: "single-lined text",
+                    position: 1,
+                    row: 1,
+                    fieldLabel: 'firstName',
+                    propertyName: 'firstname'
+                }, {
+                    fieldType: "single-lined text",
+                    position: 2,
+                    row: 1,
+                    fieldLabel: 'lastName',
+                    propertyName: 'lastname'
+                }];
             });
         });
     });

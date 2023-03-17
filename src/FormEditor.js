@@ -48,6 +48,16 @@ export const FormEditor = ({fields}) => {
                 );
             case "multi-line text":
                 return (<textarea></textarea>);
+            case "radio":
+                return (
+                    <>
+                        {item.values.map((x) => {
+                            return <input type="radio" name={camelize(item.fieldLabel)} value={x}></input>
+                        })}
+                    </>
+                )
+            case "header":
+                return <h1>{item.fieldLabel}</h1>;
             default:
                 return (null);
         }
