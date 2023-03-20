@@ -1,7 +1,8 @@
 import React, {useState} from "react";
 
-export const FormEditor = ({fields}) => {
+export const FormEditor = ({fields, dragItem=null}) => {
     const [activeField, setActiveField] = useState(null);
+    const [dragging, setDragging] = useState(dragItem);
 
     handleClick = (e, fieldId) => {
         setActiveField(fieldId);
@@ -9,6 +10,15 @@ export const FormEditor = ({fields}) => {
 
     handleClickOutside = (e) => {
         setActiveField(null);
+    };
+
+    handleDrag = (e) => {
+        // handles drag for exist fields on form
+            // 1. get field label
+            // 2. get current position with fieldId and type
+            // 3. update state of dragging item
+                // a. calculate drop targets
+                // b. re-render form with drop targets
     };
 
     getFieldComponent = (item) => {
@@ -85,23 +95,36 @@ export const FormEditor = ({fields}) => {
             ) : (
                 <>
                     <div id="clickableElement" onClick={handleClickOutside}></div>
-                    {fields.map((item) =>
-                        <div 
-                            id={camelize(item.fieldLabel)} 
-                            onClick={(e) => handleClick(e, camelize(item.fieldLabel))}
-                        >
-                            <div className={`movableAreaContainer${(activeField === camelize(item.fieldLabel)) ? '--visible': ''}`}>
-                                <div className="formField">
-                                    <label htmlFor={camelize(item.fieldLabel)}>
-                                        <div wrap="wrap" direction="row">
-                                            <div className="externalLabel"><span>{item.fieldLabel}</span></div>
-                                            <div className="propertyName"><span>{item.propertyName}</span></div>
+                    {fields.map(dataRow =>
+                        <>
+                            {dragging &&
+                                <div className="fieldGroupDropTarget"></div>
+                            }
+                            <div wrap="nowrap" direction="row" className="formFieldFullGroupContainer" style={{ display: 'flex' }}>
+                                {dataRow.map(item => 
+                                    <div 
+                                        id={camelize(item.fieldLabel)} 
+                                        onClick={(e) => handleClick(e, camelize(item.fieldLabel))}
+                                    >
+                                        <div className={`movableAreaContainer${(activeField === camelize(item.fieldLabel)) ? '--visible': ''}`}>
+                                            <div draggable
+                                                onDrag={(e) => this.handleDrag(e)}
+                                            >
+                                                <div className="formField">
+                                                    <label htmlFor={camelize(item.fieldLabel)}>
+                                                        <div className="externalLabel"><span>{item.fieldLabel}</span></div>
+                                                        <div className="propertyName"><span>{item.propertyName}</span></div>
+                                                    </label>
+                                                    {getFieldComponent(item)}
+                                                </div>
+                                            </div>
                                         </div>
-                                    </label>
-                                    {getFieldComponent(item)}
-                                </div>
+                                    </div>)}
                             </div>
-                        </div>
+                            {dragging &&
+                                <div className="fieldGroupDropTarget"></div>
+                            }
+                            </>
                     )}
                 </>
             )}
