@@ -9,7 +9,7 @@ import {
     elements
 } from "./testExtensions";
 
-describe("Form Editor", () => {
+describe("FormEditor", () => {
     const singleField = [[{
         fieldType: "single-lined text",
         fieldLabel: 'First name',
@@ -131,7 +131,7 @@ describe("Form Editor", () => {
 
         it("renders field property name", () => {
             render(<FormEditor fields={singleField} />);
-            expect(element(`label[for=${camelize(singleField[0][0].fieldLabel)}] .propertyName`).textContent).toContain('firstname');
+            expect(element(`small.propertyName`).textContent).toContain('firstname');
         });
 
         it("renders two fields in one row", () => {
@@ -284,81 +284,80 @@ describe("Form Editor", () => {
         });
     });
 
-    describe("Drop Targets", () => {
-        describe("Form Field", () => {
-            describe("Field Group Drop Target", () => {
-                it("does not render targets when not dragging", () => {
-                    render(
-                        <FormEditor 
-                            fields={singleField} 
-                        />
-                    );
-                    expect(elements(".fieldGroupDropTarget").length).toBe(0);
-                });
-
-                it("renders targets on drag", () => {
-                    const dragItem = {
-                        fieldType: "radio"
-                    };
-                    render(
-                        <FormEditor 
-                            dragItem={dragItem} 
-                            fields={singleField} 
-                        />
-                    );
-                    expect(elements(".fieldGroupDropTarget").length).toBe(2);
-                });
-            });
-            
-
-            describe("Form Field Drop Targets", () => {
-                it("renders two targets when single field exists", () => {
-                    const dragItem = {
-                        fieldType: "radio"
-                    };
-                    render(
-                        <FormEditor 
-                            dragItem={dragItem} 
-                            fields={singleField} 
-                        />
-                    );
-                    expect(elements(".formFieldDropTarget").length).toBe(2);
-                });
-
-                it("renders three targets when two fields exists in the same row", () => {
-                    const dragItem = {
-                        fieldType: "radio"
-                    };
-                    render(
-                        <FormEditor 
-                            dragItem={dragItem} 
-                            fields={twoFields} 
-                        />
-                    );
-                    expect(elements(".formFieldDropTarget").length).toBe(3);
-                });
-            })
-            
+    describe("Drop Target", () => {
+        it("renders no drop targets around current dragged field if exists in form and is 'Header'", () => {
+            const headerField = [[{
+                fieldType: "header",
+                fieldLabel: 'sample header',
+                propertyName: 'sampleheader'
+            }]];
+            const draggedField = {
+                fieldType: "header",
+                fieldLabel: camelize(headerField[0][0].fieldLabel)
+            };
+            render(<FormEditor fields={headerField} dragItem={draggedField} />);
+            expect(elements(".fieldGroupDropTarget").length).toBe(0);
+            expect(elements(".fieldDropTarget").length).toBe(0);
         });
 
-        describe("Existing Field", () => {
-            it("renders Field Group Drop Targets", () => {
-                const dragItem = {
-                    row: 1,
-                    position: 2
-                };
-                render(
-                    <FormEditor 
-                        draggingField={draggingFormField} 
-                        fields={twoFields} 
-                    />
-                );
-                expect(elements(".fieldGroupDropTarget").length).toBe(2);
-            });
+        it("renders no drop targets around current dragged field if field is only one in row", () => {
+            const draggedField = {
+                fieldType: singleField[0][0].fieldType,
+                fieldLabel: camelize(singleField[0][0].fieldLabel)
+            };
+            render(<FormEditor fields={singleField} dragItem={draggedField} />);
+            expect(elements(".fieldGroupDropTarget").length).toBe(0);
+            expect(elements(".fieldDropTarget").length).toBe(0);
+        });
 
-            it.skip("renders Form Field Drop Targets", () => {
-                
-            });
+        it("renders drop targets around field if dragged is new field", () => {
+            const draggedField = {
+                fieldType: 'single-lined text'
+            };
+            render(<FormEditor fields={singleField} dragItem={draggedField} />);
+            expect(elements(".fieldGroupDropTarget").length).toBe(2);
+            expect(elements(".fieldDropTarget").length).toBe(2);
+        });
+
+        it("renders drop targets above and below existing 'Header' field if dragged is new field", () => {
+            const draggedField = {
+                fieldType: 'single-lined text'
+            };
+            const headerField = [[{
+                fieldType: "header",
+                style: { header: 1},
+                fieldLabel: 'This is a sample header.',
+                propertyName: 'sampleheader'
+            }]];
+            render(<FormEditor fields={headerField} dragItem={draggedField} />);
+            expect(elements(".fieldGroupDropTarget").length).toBe(2);
+            expect(elements(".fieldDropTarget").length).toBe(0);
+        });
+
+        it("renders drop targets between fields with rows of length two and dragged is new field", () => {
+            const draggedField = {
+                fieldType: 'single-lined text'
+            };
+            render(<FormEditor fields={twoFields} dragItem={draggedField} />);
+            expect(elements(".fieldDropTarget").length).toBe(3);
+        });
+
+        it("renders drop targets between fields  in the same row as current dragged field but not between dragged field", () => {
+            const draggedField = {
+                fieldType: 'single-lined text',
+                fieldLabel: 'nickname'
+            };
+            const twoFields = [[{
+                fieldType: "single-lined text",
+                fieldLabel: 'First name',
+                propertyName: 'firstname'
+            }, {
+                fieldType: "single-lined text",
+                fieldLabel: 'nickname',
+                propertyName: 'nickname'
+            }]];
+            render(<FormEditor fields={twoFields} dragItem={draggedField} />);
+            expect(elements(".fieldDropTarget").length).toBe(1);
         });
     });
 });

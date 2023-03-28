@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { FormFields } from "../src/FormFields";
+import { FieldList } from "../src/FieldList";
 
-describe("FormFields", () => {
+describe("FieldList", () => {
 
     let container
 
@@ -18,20 +18,20 @@ describe("FormFields", () => {
         );
 
     it("renders section title", () => {
-        render(<FormFields />);
+        render(<FieldList />);
         expect(document.body.textContent).toContain("Form Fields");
     });
 
     describe("Field Tile", () => {
         const itRendersDragHandle = (fieldName) =>
             it("renders drag handle", () => {
-                render(<FormFields />);
+                render(<FieldList />);
                 expect(document.getElementById(fieldName).textContent).toContain("... ...");
             });
 
         const itRendersFieldName = (fieldName, title) =>
             it("renders field name", () => {
-                render(<FormFields />);
+                render(<FieldList />);
                 expect(document.getElementById(fieldName).textContent).toContain(title);
             });
             
