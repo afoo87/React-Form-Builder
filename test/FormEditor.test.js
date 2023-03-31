@@ -11,32 +11,32 @@ import {
 
 describe("FormEditor", () => {
     const singleField = [[{
-        fieldType: "single-lined text",
-        fieldLabel: 'First name',
+        type: "single-lined text",
+        label: 'First name',
         propertyName: 'firstname'
     }]];
 
     const twoFields = [[{
-        fieldType: "single-lined text",
-        fieldLabel: 'First name',
+        type: "single-lined text",
+        label: 'First name',
         propertyName: 'firstname'
     }, {
-        fieldType: "single-lined text",
-        fieldLabel: 'Last Name',
+        type: "single-lined text",
+        label: 'Last Name',
         propertyName: 'lastname'
     }]];
 
     const threeFields = [[{
-        fieldType: "single-lined text",
-        fieldLabel: 'First name',
+        type: "single-lined text",
+        label: 'First name',
         propertyName: 'firstname'
     }, {
-        fieldType: "single-lined text",
-        fieldLabel: 'Last name',
+        type: "single-lined text",
+        label: 'Last name',
         propertyName: 'lastname'
     }, {
-        fieldType: "single-lined text",
-        fieldLabel: 'nickname',
+        type: "single-lined text",
+        label: 'nickname',
         propertyName: 'nickname'
     }]];
 
@@ -117,7 +117,7 @@ describe("FormEditor", () => {
                 render(<FormEditor fields={twoFields} />);
                 await clickAndWait(element("#firstName"));
                 await clickAndWait(element("#lastName"));
-                await clickAndWait(element("#clickableElement"));
+                await clickAndWait(document.body);
                 expect(elements('.movableAreaContainer--visible')).toHaveLength(0);
             });
         }); 
@@ -126,7 +126,7 @@ describe("FormEditor", () => {
     describe("Fields", () => {
         it("renders field label", () => {
             render(<FormEditor fields={singleField} />);
-            expect(element(`label[for=${camelize(singleField[0][0].fieldLabel)}] .externalLabel`).textContent).toContain('First name');
+            expect(element(`label[for=${camelize(singleField[0][0].label)}] .externalLabel`).textContent).toContain('First name');
         });
 
         it("renders field property name", () => {
@@ -154,10 +154,10 @@ describe("FormEditor", () => {
         describe("Number", () => {
             it("renders field", () => {
                 const fields = [[{
-                    fieldType: "number",
+                    type: "number",
                     position: 1,
                     row: 1,
-                    fieldLabel: 'phone number',
+                    label: 'phone number',
                     propertyName: 'phonenumber'
                 }]];
                 render(<FormEditor fields={fields} />);
@@ -168,10 +168,10 @@ describe("FormEditor", () => {
         describe("Single checkbox", () => {
             it("renders field", () => {
                 const fields = [[{
-                    fieldType: "boolean checkbox",
+                    type: "boolean checkbox",
                     position: 1,
                     row: 1,
-                    fieldLabel: 'Single Checkbox',
+                    label: 'Single Checkbox',
                     propertyName: 'checkbox'
                 }]];
                 render(<FormEditor fields={fields} />);
@@ -182,11 +182,13 @@ describe("FormEditor", () => {
         describe("Checkboxes", () => {
             it("renders field", () => {
                 const fields = [[{
-                    fieldType: "checkboxes",
+                    type: "checkboxes",
                     position: 1,
                     row: 1,
-                    values: ["apple", "banana"],
-                    fieldLabel: 'Fruit Checkbox',
+                    options: [
+                        {text: "apple", value: "apple"},
+                        {text: "banana", value: "banana"}],
+                    label: 'Fruit Checkbox',
                     propertyName: 'checkboxes'
                 }]];
                 render(<FormEditor fields={fields} />);
@@ -197,11 +199,13 @@ describe("FormEditor", () => {
 
         describe("Dropdown", () => {
             const dropDownField = [[{
-                fieldType: "dropdown",
+                type: "dropdown",
                 position: 1,
                 row: 1,
-                values: ["apple", "banana"],
-                fieldLabel: 'Fruit Dropdown',
+                options: [
+                    {text: "apple", value: "apple"},
+                    {text: "banana", value: "banana"}],
+                label: 'Fruit Dropdown',
                 propertyName: 'dropdown'
             }]];
 
@@ -217,12 +221,14 @@ describe("FormEditor", () => {
 
             it("pre-selects the existing value", () => {
                 const fields = [[{
-                    fieldType: "dropdown",
+                    type: "dropdown",
                     position: 1,
                     row: 1,
-                    values: ["apple", "banana"],
+                    options: [
+                        {text: "apple", value: "apple"},
+                        {text: "banana", value: "banana"}],
                     preselected: "apple",
-                    fieldLabel: 'Fruit Dropdown',
+                    label: 'Fruit Dropdown',
                     propertyName: 'dropdown'
                 }]];
                 render(<FormEditor fields={fields} />);
@@ -233,8 +239,8 @@ describe("FormEditor", () => {
         describe("Multi-line Text", () => {
             it("renders field", () => {
                 const fields = [[{
-                    fieldType: "multi-line text",
-                    fieldLabel: 'Optional Comment',
+                    type: "multi-line text",
+                    label: 'Optional Comment',
                     propertyName: 'optcomment'
                 }]];
                 render(<FormEditor fields={fields} />);
@@ -245,24 +251,28 @@ describe("FormEditor", () => {
         describe("Radio", () => {
             it("renders buttons", () => {
                 const fields = [[{
-                    fieldType: "radio",
-                    values: ["apple", "banana"],
+                    type: "radio",
+                    options: [
+                        {text: "apple", value: "apple"},
+                        {text: "banana", value: "banana"}],
                     preselected: "apple",
-                    fieldLabel: 'Fruit Radio',
+                    label: 'Fruit Radio',
                     propertyName: 'radio'
                 }]];
                 render(<FormEditor fields={fields} />);
-                fields[0][0].values.forEach((x) => {
-                    expect(element(`input[type=radio][value=${x}]`)).not.toBeNull();
+                fields[0][0].options.forEach((opt) => {
+                    expect(element(`input[type=radio][value=${opt.value}]`)).not.toBeNull();
                 });
             });
 
             it("initially has blank value chosen", () => {
                 const fields = [[{
-                    fieldType: "radio",
-                    values: ["apple", "banana"],
+                    type: "radio",
+                    options: [
+                        {text: "apple", value: "apple"},
+                        {text: "banana", value: "banana"}],
                     preselected: "apple",
-                    fieldLabel: 'Fruit Radio',
+                    label: 'Fruit Radio',
                     propertyName: 'radio'
                 }]];
                 render(<FormEditor fields={fields} />);
@@ -273,9 +283,9 @@ describe("FormEditor", () => {
         describe("Header", () => {
             it("renders field", () => {
                 const fields = [[{
-                    fieldType: "header",
+                    type: "header",
                     style: { header: 1},
-                    fieldLabel: 'This is a sample header.',
+                    label: 'This is a sample header.',
                     propertyName: 'sampleheader'
                 }]];
                 render(<FormEditor fields={fields} />);
@@ -287,13 +297,13 @@ describe("FormEditor", () => {
     describe("Drop Target", () => {
         it("renders no drop targets around current dragged field if exists in form and is 'Header'", () => {
             const headerField = [[{
-                fieldType: "header",
-                fieldLabel: 'sample header',
+                type: "header",
+                label: 'sample header',
                 propertyName: 'sampleheader'
             }]];
             const draggedField = {
-                fieldType: "header",
-                fieldLabel: camelize(headerField[0][0].fieldLabel)
+                type: "header",
+                label: camelize(headerField[0][0].label)
             };
             render(<FormEditor fields={headerField} dragItem={draggedField} />);
             expect(elements(".fieldGroupDropTarget").length).toBe(0);
@@ -302,8 +312,8 @@ describe("FormEditor", () => {
 
         it("renders no drop targets around current dragged field if field is only one in row", () => {
             const draggedField = {
-                fieldType: singleField[0][0].fieldType,
-                fieldLabel: camelize(singleField[0][0].fieldLabel)
+                type: singleField[0][0].type,
+                label: camelize(singleField[0][0].label)
             };
             render(<FormEditor fields={singleField} dragItem={draggedField} />);
             expect(elements(".fieldGroupDropTarget").length).toBe(0);
@@ -312,7 +322,7 @@ describe("FormEditor", () => {
 
         it("renders drop targets around field if dragged is new field", () => {
             const draggedField = {
-                fieldType: 'single-lined text'
+                type: 'single-lined text'
             };
             render(<FormEditor fields={singleField} dragItem={draggedField} />);
             expect(elements(".fieldGroupDropTarget").length).toBe(2);
@@ -321,12 +331,12 @@ describe("FormEditor", () => {
 
         it("renders drop targets above and below existing 'Header' field if dragged is new field", () => {
             const draggedField = {
-                fieldType: 'single-lined text'
+                type: 'single-lined text'
             };
             const headerField = [[{
-                fieldType: "header",
+                type: "header",
                 style: { header: 1},
-                fieldLabel: 'This is a sample header.',
+                label: 'This is a sample header.',
                 propertyName: 'sampleheader'
             }]];
             render(<FormEditor fields={headerField} dragItem={draggedField} />);
@@ -336,7 +346,7 @@ describe("FormEditor", () => {
 
         it("renders drop targets between fields with rows of length two and dragged is new field", () => {
             const draggedField = {
-                fieldType: 'single-lined text'
+                type: 'single-lined text'
             };
             render(<FormEditor fields={twoFields} dragItem={draggedField} />);
             expect(elements(".fieldDropTarget").length).toBe(3);
@@ -344,20 +354,24 @@ describe("FormEditor", () => {
 
         it("renders drop targets between fields  in the same row as current dragged field but not between dragged field", () => {
             const draggedField = {
-                fieldType: 'single-lined text',
-                fieldLabel: 'nickname'
+                type: 'single-lined text',
+                label: 'nickname'
             };
             const twoFields = [[{
-                fieldType: "single-lined text",
-                fieldLabel: 'First name',
+                type: "single-lined text",
+                label: 'First name',
                 propertyName: 'firstname'
             }, {
-                fieldType: "single-lined text",
-                fieldLabel: 'nickname',
+                type: "single-lined text",
+                label: 'Last name',
+                propertyName: 'lastname'
+            }, {
+                type: "single-lined text",
+                label: 'nickname',
                 propertyName: 'nickname'
             }]];
             render(<FormEditor fields={twoFields} dragItem={draggedField} />);
-            expect(elements(".fieldDropTarget").length).toBe(1);
+            expect(elements(".fieldDropTarget").length).toBe(2);
         });
     });
 });
