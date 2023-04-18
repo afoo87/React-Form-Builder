@@ -1,4 +1,5 @@
 import React from "react";
+import { fireEvent } from "@testing-library/react";
 import ReactDOM from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { FormEditor } from "../src/FormEditor";
@@ -13,31 +14,31 @@ describe("FormEditor", () => {
     const singleField = [[{
         type: "single-lined text",
         label: 'First name',
-        propertyName: 'firstname'
+        internalName: 'firstname'
     }]];
 
     const twoFields = [[{
         type: "single-lined text",
         label: 'First name',
-        propertyName: 'firstname'
+        internalName: 'firstname'
     }, {
         type: "single-lined text",
         label: 'Last Name',
-        propertyName: 'lastname'
+        internalName: 'lastname'
     }]];
 
     const threeFields = [[{
         type: "single-lined text",
         label: 'First name',
-        propertyName: 'firstname'
+        internalName: 'firstname'
     }, {
         type: "single-lined text",
         label: 'Last name',
-        propertyName: 'lastname'
+        internalName: 'lastname'
     }, {
         type: "single-lined text",
         label: 'nickname',
-        propertyName: 'nickname'
+        internalName: 'nickname'
     }]];
 
     let container;
@@ -97,30 +98,28 @@ describe("FormEditor", () => {
         });
     });
 
-    describe("Draggable Container", () => {
-        describe("Drag Handle", () => {
-            it("renders drag handle active on field on mouse click", async () => {
-                render(<FormEditor fields={singleField} />);
-                await clickAndWait(element('#firstName'));
-                expect(element('#firstName > .movableAreaContainer--visible')).not.toBeNull();
-            });
-    
-            it("renders drag handle to another field when clicked", async () => {
-                render(<FormEditor fields={twoFields} />);
-                await clickAndWait(element("#firstName"));
-                await clickAndWait(element("#lastName"));
-                expect(element('#firstName > .movableAreaContainer--visible')).toBeNull();
-                expect(element('#lastName > .movableAreaContainer--visible')).not.toBeNull();
-            });
+    describe("Draggable Container & Handle", () => {
+        it("renders drag handle active on field on mouse click", async () => {
+            render(<FormEditor fields={singleField} />);
+            await clickAndWait(element('#firstName'));
+            expect(element('#firstName > .movableAreaContainer--visible')).not.toBeNull();
+        });
 
-            it("removes drag handle on mouse click outside of any non-field elements", async () => {
-                render(<FormEditor fields={twoFields} />);
-                await clickAndWait(element("#firstName"));
-                await clickAndWait(element("#lastName"));
-                await clickAndWait(document.body);
-                expect(elements('.movableAreaContainer--visible')).toHaveLength(0);
-            });
-        }); 
+        it("renders drag handle to another field when clicked", async () => {
+            render(<FormEditor fields={twoFields} />);
+            await clickAndWait(element("#firstName"));
+            await clickAndWait(element("#lastName"));
+            expect(element('#firstName > .movableAreaContainer--visible')).toBeNull();
+            expect(element('#lastName > .movableAreaContainer--visible')).not.toBeNull();
+        });
+
+        it("removes drag handle on mouse click outside of any non-field elements", async () => {
+            render(<FormEditor fields={twoFields} />);
+            await clickAndWait(element("#firstName"));
+            await clickAndWait(element("#lastName"));
+            await clickAndWait(document.body);
+            expect(elements('.movableAreaContainer--visible')).toHaveLength(0);
+        });
     });
 
     describe("Fields", () => {
@@ -131,7 +130,7 @@ describe("FormEditor", () => {
 
         it("renders field property name", () => {
             render(<FormEditor fields={singleField} />);
-            expect(element(`small.propertyName`).textContent).toContain('firstname');
+            expect(element(`small.internalName`).textContent).toContain('firstname');
         });
 
         it("renders two fields in one row", () => {
@@ -158,7 +157,7 @@ describe("FormEditor", () => {
                     position: 1,
                     row: 1,
                     label: 'phone number',
-                    propertyName: 'phonenumber'
+                    internalName: 'phonenumber'
                 }]];
                 render(<FormEditor fields={fields} />);
                 expect(element("#phoneNumber input[type=number]")).not.toBeNull();
@@ -172,7 +171,7 @@ describe("FormEditor", () => {
                     position: 1,
                     row: 1,
                     label: 'Single Checkbox',
-                    propertyName: 'checkbox'
+                    internalName: 'checkbox'
                 }]];
                 render(<FormEditor fields={fields} />);
                 expect(element("#singleCheckbox input[type=checkbox]")).not.toBeNull();
@@ -189,7 +188,7 @@ describe("FormEditor", () => {
                         {text: "apple", value: "apple"},
                         {text: "banana", value: "banana"}],
                     label: 'Fruit Checkbox',
-                    propertyName: 'checkboxes'
+                    internalName: 'checkboxes'
                 }]];
                 render(<FormEditor fields={fields} />);
                 expect(element("input[id=fruitCheckbox0]")).not.toBeNull();
@@ -206,7 +205,7 @@ describe("FormEditor", () => {
                     {text: "apple", value: "apple"},
                     {text: "banana", value: "banana"}],
                 label: 'Fruit Dropdown',
-                propertyName: 'dropdown'
+                internalName: 'dropdown'
             }]];
 
             it("renders field", () => {
@@ -229,7 +228,7 @@ describe("FormEditor", () => {
                         {text: "banana", value: "banana"}],
                     preselected: "apple",
                     label: 'Fruit Dropdown',
-                    propertyName: 'dropdown'
+                    internalName: 'dropdown'
                 }]];
                 render(<FormEditor fields={fields} />);
                 expect(Array.from(element("#fruitDropdown select").childNodes).find((option) => option.textContent === "apple").selected).toBe(true);
@@ -241,7 +240,7 @@ describe("FormEditor", () => {
                 const fields = [[{
                     type: "multi-line text",
                     label: 'Optional Comment',
-                    propertyName: 'optcomment'
+                    internalName: 'optcomment'
                 }]];
                 render(<FormEditor fields={fields} />);
                 expect(element("#optionalComment textarea")).not.toBeNull();
@@ -257,7 +256,7 @@ describe("FormEditor", () => {
                         {text: "banana", value: "banana"}],
                     preselected: "apple",
                     label: 'Fruit Radio',
-                    propertyName: 'radio'
+                    internalName: 'radio'
                 }]];
                 render(<FormEditor fields={fields} />);
                 fields[0][0].options.forEach((opt) => {
@@ -273,7 +272,7 @@ describe("FormEditor", () => {
                         {text: "banana", value: "banana"}],
                     preselected: "apple",
                     label: 'Fruit Radio',
-                    propertyName: 'radio'
+                    internalName: 'radio'
                 }]];
                 render(<FormEditor fields={fields} />);
                 expect(element("input[type=radio]:checked")).toBeNull();
@@ -286,7 +285,7 @@ describe("FormEditor", () => {
                     type: "header",
                     style: { header: 1},
                     label: 'This is a sample header.',
-                    propertyName: 'sampleheader'
+                    internalName: 'sampleheader'
                 }]];
                 render(<FormEditor fields={fields} />);
                 expect(element("h1").textContent).toContain("This is a sample header.");
@@ -299,11 +298,11 @@ describe("FormEditor", () => {
             const headerField = [[{
                 type: "header",
                 label: 'sample header',
-                propertyName: 'sampleheader'
+                internalName: 'sampleheader'
             }]];
             const draggedField = {
                 type: "header",
-                label: camelize(headerField[0][0].label)
+                internalName: headerField[0][0].internalName
             };
             render(<FormEditor fields={headerField} dragItem={draggedField} />);
             expect(elements(".fieldGroupDropTarget").length).toBe(0);
@@ -313,7 +312,7 @@ describe("FormEditor", () => {
         it("renders no drop targets around current dragged field if field is only one in row", () => {
             const draggedField = {
                 type: singleField[0][0].type,
-                label: camelize(singleField[0][0].label)
+                internalName: singleField[0][0].internalName
             };
             render(<FormEditor fields={singleField} dragItem={draggedField} />);
             expect(elements(".fieldGroupDropTarget").length).toBe(0);
@@ -337,7 +336,7 @@ describe("FormEditor", () => {
                 type: "header",
                 style: { header: 1},
                 label: 'This is a sample header.',
-                propertyName: 'sampleheader'
+                internalName: 'sampleheader'
             }]];
             render(<FormEditor fields={headerField} dragItem={draggedField} />);
             expect(elements(".fieldGroupDropTarget").length).toBe(2);
@@ -355,23 +354,24 @@ describe("FormEditor", () => {
         it("renders drop targets between fields  in the same row as current dragged field but not between dragged field", () => {
             const draggedField = {
                 type: 'single-lined text',
-                label: 'nickname'
+                internalName: 'nickname'
             };
-            const twoFields = [[{
+            const threeFields = [[{
                 type: "single-lined text",
                 label: 'First name',
-                propertyName: 'firstname'
+                internalName: 'firstname'
             }, {
                 type: "single-lined text",
                 label: 'Last name',
-                propertyName: 'lastname'
+                internalName: 'lastname'
             }, {
                 type: "single-lined text",
                 label: 'nickname',
-                propertyName: 'nickname'
+                internalName: 'nickname'
             }]];
-            render(<FormEditor fields={twoFields} dragItem={draggedField} />);
+            render(<FormEditor fields={threeFields} dragItem={draggedField} />);
             expect(elements(".fieldDropTarget").length).toBe(2);
         });
     });
+
 });
