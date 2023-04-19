@@ -164,14 +164,21 @@ const FormRow = ({
     handleDragStart,
     draggedItem
 }) => {
+
+    const dragged = Object.keys(draggedItem).length > 0;
+    const isDragExistingField = dragged && !!draggedItem.internalName;
+    const isMatchDragField = (f) => draggedItem.internalName === f.internalName;
+    const isDraggedCurrentField = (f) => isDragExistingField && isMatchDragField(f);
+    const isHeader = (f) => f.type === 'header';
+
     const renderLeftDropTarget = (field, prevField) => {
-        if (Object.keys(draggedItem).length) {
-            if (draggedItem.type === 'header' || field.type === 'header') {
+        if (dragged) {
+            if (isHeader(draggedItem) || isHeader(field)) {
                 return false;
-            } else if (!!draggedItem.internalName && draggedItem.internalName === field.internalName) {
+            } else if (isDraggedCurrentField(field)) {
                 return false;
             } else if (prevField) {
-                if (!!draggedItem.internalName && draggedItem.internalName === prevField.internalName) {
+                if (isDraggedCurrentField(prevField)) {
                     return false;
                 }
             }
@@ -181,13 +188,13 @@ const FormRow = ({
     }
 
     const renderRightDropTarget = (field, prevField, isLastField) => {
-        if (Object.keys(draggedItem).length) {
+        if (dragged) {
             if (draggedItem.type === 'header' || field.type === 'header') {
                 return false;
-            } else if (!!draggedItem.internalName && draggedItem.internalName === field.internalName) {
+            } else if (!!draggedItem.internalName && isMatchDragField(draggedItem, field)) {
                 return false;
             } else if (prevField) {
-                if (!!draggedItem.internalName && draggedItem.internalName === prevField.internalName) {
+                if (!!draggedItem.internalName && isMatchDragField(draggedItem, prevField)) {
                     return isLastField;
                 }
             }
@@ -197,7 +204,6 @@ const FormRow = ({
     }
 
     renderRow = () => {
-        
         return fields.map((field, i) => {
             let prevField = fields[i-1];
             let isLastField = i + 1 === fields.length;
@@ -305,12 +311,18 @@ export const FormEditor = ({
     };
 
     renderForm = () => {
+        const dragged = Object.keys(draggedItem).length > 0;
+        const isSingleFieldRow = (row) => row.length === 1;
+        const isMatchDragField = (f) => draggedItem.internalName === f.internalName;
+        const isSingleAndDragged = (row) =>  isSingleFieldRow(row) && isMatchDragField(row[0]);
+        const isHeader = (field) => field.type === 'header';
+
         const renderTopDropTarget = (dataRow, prevRow) => {
-            if (draggedItem) {
-                if (dataRow.length === 1 && draggedItem.internalName === dataRow[0].internalName) {
+            if (dragged) {
+                if (isSingleAndDragged(dataRow)) {
                     return false;
                 } else if (prevRow) {
-                    if (prevRow.length === 1 && draggedItem.internalName === prevRow[0].internalName && draggedItem.type === 'header') {
+                    if (isSingleAndDragged(prevRow) && isHeader(draggedItem)) {
                         return false;
                     }
                 } else {
@@ -322,12 +334,12 @@ export const FormEditor = ({
         }
 
         const renderBottomDropTarget = (dataRow, prevRow, isLastRow) => {
-            if (draggedItem) {
+            if (dragged) {
                 if (isLastRow) {
-                    if (dataRow.length === 1 && draggedItem.internalName === dataRow[0].internalName) {
+                    if (isSingleAndDragged(dataRow)) {
                         return false;
                     } else if (prevRow) {
-                        if (prevRow.length === 1 && draggedItem.internalName === prevRow[0].internalName && draggedItem.type === 'header') {
+                        if (isSingleAndDragged(prevRow) && isHeader(draggedItem)) {
                             return true;
                         }
                     } else {
@@ -339,30 +351,28 @@ export const FormEditor = ({
             return false;
         }
 
-        return (
-            formFields.map((row, i) => {
-                let prevRow = formFields[i-1];
-                let isLastRow = i + 1 === formFields.length;
+        return formFields.map((row, i) => {
+                    let prevRow = formFields[i-1];
+                    let isLastRow = i + 1 === formFields.length;
 
-                return (
-                    <>
-                        <RenderIf isTrue={renderTopDropTarget(row, prevRow)}>
-                            <DropTarget placement={"horizontal"} />
-                        </RenderIf>
-                        <FormRow 
-                            fields={row} 
-                            handleClick={handleClick} 
-                            handleClickOutside={handleClickOutside}
-                            handleDragStart={handleDragStart}
-                            draggedItem={draggedItem}
-                        />
-                        <RenderIf isTrue={renderBottomDropTarget(row, prevRow, isLastRow)}>
-                            <DropTarget placement={"horizontal"} />
-                        </RenderIf>
-                    </>
-                )
-            })
-        )
+                    return (
+                        <>
+                            <RenderIf isTrue={renderTopDropTarget(row, prevRow)}>
+                                <DropTarget placement={"horizontal"} />
+                            </RenderIf>
+                            <FormRow 
+                                fields={row} 
+                                handleClick={handleClick} 
+                                handleClickOutside={handleClickOutside}
+                                handleDragStart={handleDragStart}
+                                draggedItem={draggedItem}
+                            />
+                            <RenderIf isTrue={renderBottomDropTarget(row, prevRow, isLastRow)}>
+                                <DropTarget placement={"horizontal"} />
+                            </RenderIf>
+                        </>
+                    )
+                })
     }
 
     return (
