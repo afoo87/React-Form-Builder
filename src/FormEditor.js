@@ -164,11 +164,62 @@ const FormRow = ({
     handleDragStart,
     draggedItem
 }) => {
-    let prevDrag = false;
+    const renderLeftDropTarget = (field, prevField) => {
+        if (Object.keys(draggedItem).length) {
+            if (draggedItem.type === 'header' || field.type === 'header') {
+                return false;
+            } else if (!!draggedItem.internalName && draggedItem.internalName === field.internalName) {
+                return false;
+            } else if (prevField) {
+                if (!!draggedItem.internalName && draggedItem.internalName === prevField.internalName) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 
-    const containsDragField = (dataRow) => {
-        return dataRow.some(field => field.internalName === draggedItem.internalName);
-    };
+    const renderRightDropTarget = (field, prevField, isLastField) => {
+        if (Object.keys(draggedItem).length) {
+            if (draggedItem.type === 'header' || field.type === 'header') {
+                return false;
+            } else if (!!draggedItem.internalName && draggedItem.internalName === field.internalName) {
+                return false;
+            } else if (prevField) {
+                if (!!draggedItem.internalName && draggedItem.internalName === prevField.internalName) {
+                    return isLastField;
+                }
+            }
+            return isLastField;
+        }
+        return false;
+    }
+
+    renderRow = () => {
+        
+        return fields.map((field, i) => {
+            let prevField = fields[i-1];
+            let isLastField = i + 1 === fields.length;
+
+            return (
+                <>
+                    <RenderIf isTrue={renderLeftDropTarget(field, prevField)}>
+                        <DropTarget placement={"vertical"} />
+                    </RenderIf>
+                    <FormField 
+                        {...field} 
+                        handleClick={handleClick} 
+                        handleClickOutside={handleClickOutside}
+                        handleDragStart={handleDragStart}
+                    />
+                    <RenderIf isTrue={renderRightDropTarget(field, prevField, isLastField)}>
+                        <DropTarget placement={"vertical"} />
+                    </RenderIf>
+                </>
+            )
+        })
+    }
 
     return (
         <div 
@@ -177,55 +228,7 @@ const FormRow = ({
             className="formFieldFullGroupContainer" 
             style={{ display: 'flex' }}
         >
-            {fields.map((field, i) => {
-                if (containsDragField(fields)) {
-                    if (!!draggedItem.internalName && draggedItem.internalName === field.internalName) {
-                        prevDrag = true;
-                        <FormField 
-                            {...field} 
-                            handleClick={handleClick} 
-                            handleClickOutside={handleClickOutside}
-                            handleDragStart={handleDragStart}
-                        />
-                    } else if (prevDrag) {
-                        prevDrag = false;
-                        return (<>
-                                    <FormField 
-                                        {...field} 
-                                        handleClick={handleClick} 
-                                        handleClickOutside={handleClickOutside}
-                                        handleDragStart={handleDragStart}
-                                    />
-                                    <RenderIf isTrue={i+1 === fields.length}>
-                                        <DropTarget placement={"vertical"} />
-                                    </RenderIf>
-                                </>);
-                    } else {
-                        return (<>
-                                    <DropTarget placement={"vertical"} />
-                                    <FormField 
-                                        {...field} 
-                                        handleClick={handleClick} 
-                                        handleClickOutside={handleClickOutside}
-                                        handleDragStart={handleDragStart}
-                                    />
-                                    <RenderIf isTrue={i+1 === fields.length}>
-                                        <DropTarget placement={"vertical"} />
-                                    </RenderIf>
-                                </>);
-                    }
-                } else {
-                    return (
-                        <FormField 
-                            {...field} 
-                            handleClick={handleClick} 
-                            handleClickOutside={handleClickOutside}
-                            handleDragStart={handleDragStart}
-                        />
-                    )
-                }
-            }
-            )}
+            {renderRow()}
         </div>
     )
 }
@@ -301,185 +304,71 @@ export const FormEditor = ({
         // if in between row 1 then ... ?
     };
 
-    renderRowWithDT = (fields) => {
-        let prevDrag = false;
-        return fields.map((field, i) => {
-            if (!!draggedItem.internalName && draggedItem.internalName === field.internalName) {
-                prevDrag = true;
-                return <FormField {...field} handleClick={handleClick} handleClickOutside={handleClickOutside}/>
-            } else if (prevDrag) {
-                prevDrag = false;
-                return (<>
-                            <FormField {...field} handleClick={handleClick} handleClickOutside={handleClickOutside} />
-                            { i+1 === fields.length && <DropTarget placement={"vertical"} />}
-                        </>);
-            } else {
-                return (<>
-                            <DropTarget placement={"vertical"} />
-                            <FormField {...field} handleClick={handleClick} handleClickOutside={handleClickOutside} />
-                            { i+1 === fields.length && <DropTarget placement={"vertical"} />}
-                        </>);
-            }
-        })
-    }
-
-    fieldGroupContainer = (component) =>
-        <div 
-            wrap="nowrap" 
-            direction="row" 
-            className="formFieldFullGroupContainer" 
-            style={{ display: 'flex' }}
-        >
-            {component}
-        </div>
-
-
-    renderForm = () =>
-        formFields.map(dataRow =>
-                <FormRow 
-                    fields={dataRow} 
-                    handleClick={handleClick} 
-                    handleClickOutside={handleClickOutside}
-                    handleDragStart={handleDragStart}
-                    draggedItem
-                />
-        )
-
-    renderFormWithDT = () => {
-        let prevDrag = false;
-
-        const containsDragField = (dataRow) => {
-            return dataRow.some(field => field.internalName === draggedItem.internalName);
-        };
-
-        return formFields.map((dataRow, i) => {
-            if (containsDragField(dataRow)) {
-                prevDrag = true;
-                return dataRow.length === 1 ?   <FormRow 
-                                                    fields={dataRow} 
-                                                    handleClick={handleClick} 
-                                                    handleClickOutside={handleClickOutside}
-                                                    handleDragStart={handleDragStart}
-                                                    draggedItem
-                                                /> : fieldGroupContainer(renderRowWithDT(dataRow))
-            } else if (prevDrag) {
-                prevDrag = false;
-                if (formFields[i-1].length === 1) {
-                    return (
-                        <>
-                            {formFields[i-1][0].type === 'header' ?
-                                <FormRow 
-                                    fields={dataRow} 
-                                    handleClick={handleClick} 
-                                    handleClickOutside={handleClickOutside}
-                                    handleDragStart={handleDragStart}
-                                    draggedItem
-                                /> : fieldGroupContainer(renderRowWithDT(dataRow))
-                            }
-                            { i+1 === formFields.length && <DropTarget placement={"horizontal"} /> }
-                        </>
-                    );
+    renderForm = () => {
+        const renderTopDropTarget = (dataRow, prevRow) => {
+            if (draggedItem) {
+                if (dataRow.length === 1 && draggedItem.internalName === dataRow[0].internalName) {
+                    return false;
+                } else if (prevRow) {
+                    if (prevRow.length === 1 && draggedItem.internalName === prevRow[0].internalName && draggedItem.type === 'header') {
+                        return false;
+                    }
                 } else {
-                    return (
-                        <>
-                            <DropTarget placement={"horizontal"} />
-                            {formFields[i][0].type === 'header' ?
-                                <FormRow 
-                                    fields={dataRow} 
-                                    handleClick={handleClick} 
-                                    handleClickOutside={handleClickOutside}
-                                    handleDragStart={handleDragStart}
-                                    draggedItem
-                                /> : fieldGroupContainer(renderRowWithDT(dataRow))
-                            }
-                            { i+1 === formFields.length && <DropTarget placement={"horizontal"} /> }
-                        </>
-                    );
+                    return true;
                 }
-            } else {
+            }
+
+            return false;
+        }
+
+        const renderBottomDropTarget = (dataRow, prevRow, isLastRow) => {
+            if (draggedItem) {
+                if (isLastRow) {
+                    if (dataRow.length === 1 && draggedItem.internalName === dataRow[0].internalName) {
+                        return false;
+                    } else if (prevRow) {
+                        if (prevRow.length === 1 && draggedItem.internalName === prevRow[0].internalName && draggedItem.type === 'header') {
+                            return true;
+                        }
+                    } else {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        return (
+            formFields.map((row, i) => {
+                let prevRow = formFields[i-1];
+                let isLastRow = i + 1 === formFields.length;
+
                 return (
                     <>
-                        <DropTarget placement={"horizontal"} />
-                        {formFields[i][0].type === 'header' ?
-                            <FormRow 
-                                fields={dataRow} 
-                                handleClick={handleClick} 
-                                handleClickOutside={handleClickOutside}
-                                handleDragStart={handleDragStart}
-                                draggedItem
-                            /> : fieldGroupContainer(renderRowWithDT(dataRow))
-                        }
-                        { i+1 === formFields.length && <DropTarget placement={"horizontal"} /> }
+                        <RenderIf isTrue={renderTopDropTarget(row, prevRow)}>
+                            <DropTarget placement={"horizontal"} />
+                        </RenderIf>
+                        <FormRow 
+                            fields={row} 
+                            handleClick={handleClick} 
+                            handleClickOutside={handleClickOutside}
+                            handleDragStart={handleDragStart}
+                            draggedItem={draggedItem}
+                        />
+                        <RenderIf isTrue={renderBottomDropTarget(row, prevRow, isLastRow)}>
+                            <DropTarget placement={"horizontal"} />
+                        </RenderIf>
                     </>
-                );
-            }
-        });
-    };
+                )
+            })
+        )
+    }
 
     return (
         <form>
-            {(!formFields || formFields.length === 0) ? (
-                <EmptyForm />
-            ) : (
-                <>
-                    { Object.keys(draggedItem).length === 0 ? renderForm() : renderFormWithDT() }
-                </>
-            )}
+            { formFields == false ? <EmptyForm /> : renderForm() }
             <input type="submit" value="Submit" />
         </form>
     )
 };
-
-
-const renderTopDropTarget = (draggedItem, dataRow, prevRow) => {
-    if (draggedItem) {
-        if (dataRow.length === 1 && draggedItem.internalName === dataRow[0].internalName) {
-            return false;
-        } else if (prevRow.length === 1 && draggedItem.internalName === prevRow[0].internalName && draggedItem.type === 'header') {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-const renderBottomDropTarget = (draggedItem, dataRow, prevRow, last) => {
-    if (draggedItem) {
-        if (last) {
-            if (dataRow.length === 1 && draggedItem.internalName === dataRow[0].internalName) {
-                return false;
-            } else if (prevRow.length === 1 && draggedItem.internalName === prevRow[0].internalName && draggedItem.type === 'header') {
-                return true;
-            } else {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-formRows.map((row, i) => {
-    const prevRow = formRows[i-1];
-    const isLastRow = i + 1 == formRows.length;
-
-    return (
-        <>
-            <RenderIf isTrue={renderTopDropTarget(draggedItem, row, prevRow)}>
-                <DropTarget />
-            </RenderIf>
-            <FormRow 
-                fields={row} 
-                handleClick={handleClick} 
-                handleClickOutside={handleClickOutside}
-                handleDragStart={handleDragStart}
-                draggedItem
-            />
-            <RenderIf isTrue={renderBottomDropTarget(draggedItem, row, prevRow, isLastRow)}>
-                <DropTarget />
-            </RenderIf>
-        </>
-    )
-});
