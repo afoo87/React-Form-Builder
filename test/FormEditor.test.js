@@ -1,5 +1,9 @@
 import React from "react";
-import { fireEvent } from "@testing-library/react";
+import { 
+    fireEvent,
+    render,
+    screen
+} from "@testing-library/react";
 import ReactDOM from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { FormEditor } from "../src/FormEditor";
@@ -47,12 +51,6 @@ describe("FormEditor", () => {
         container = document.createElement("div");
         document.body.replaceChildren(container);
     });
-
-    const render = component =>
-        act(() => 
-            ReactDOM.createRoot(container).render(component)
-        );
-
 
     it("renders a form", () => {
         render(<FormEditor />);
