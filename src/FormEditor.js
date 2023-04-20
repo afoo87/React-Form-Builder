@@ -170,33 +170,24 @@ const FormRow = ({
     const dragged = Object.keys(draggedItem).length > 0;
     const isDragExistingField = dragged && !!draggedItem.internalName;
     const isMatchDragField = f => draggedItem.internalName === f.internalName;
-    const isDraggedCurrentField = f => isDragExistingField && isMatchDragField(f);
+    const isCurrentFieldDragged = f => isDragExistingField && isMatchDragField(f);
     const isHeader = f => f.type === 'header';
 
     const hasLeftDropTarget = (field, prevField) => {
-        if (isHeader(draggedItem) || isHeader(field)) {
-            return false;
-        } 
-        if (isDraggedCurrentField(field)) {
-            return false;
-        } 
-        if (prevField && isDraggedCurrentField(prevField)) {
-            return false;
-        }
-        return true;
+        return !(
+            isHeader(draggedItem) || 
+            isHeader(field) ||
+            isCurrentFieldDragged(field) ||
+            (prevField && isCurrentFieldDragged(prevField))
+        )
     }
 
-    const hasRightDropTarget = (field, prevField, isLastField) => {
-        if (draggedItem.type === 'header' || field.type === 'header') {
-            return false;
-        } 
-        if (isDraggedCurrentField(field)) {
-            return false;
-        } 
-        if (prevField && isDraggedCurrentField(prevField)) {
-            return isLastField;
-        }
-        return isLastField;
+    const hasRightDropTarget = (field) => {
+        return !(
+            draggedItem.type === 'header' || 
+            field.type === 'header' ||
+            isCurrentFieldDragged(field)
+        )
     }
 
     renderRow = () => {
@@ -220,7 +211,7 @@ const FormRow = ({
                         handleClickOutside={handleClickOutside}
                         handleDragStart={handleDragStart}
                     />
-                    <RenderIf isTrue={dragged && hasRightDropTarget(field, prevField, isLastField)}>
+                    <RenderIf isTrue={dragged && isLastField && hasRightDropTarget(field)}>
                         <DropTarget
                             row={rowId}
                             column={fields.length + 1}
@@ -328,25 +319,17 @@ export const FormEditor = ({
         const isHeader = field => field.type === 'header';
 
         const hasTopDropTarget = (dataRow, prevRow) => {
-            if (isSingleAndDragged(dataRow)) {
-                return false;
-            }
-            if (prevRow && isSingleAndDragged(prevRow) && isHeader(draggedItem)) {
-                return false;
-            }
-
-            return true;
+            return !(
+                isSingleAndDragged(dataRow) ||
+                (prevRow && isSingleAndDragged(prevRow) && isHeader(draggedItem))
+            )
         }
 
         const hasBottomDropTarget = (dataRow, prevRow) => {
-            if (isSingleAndDragged(dataRow)) {
-                return false;
-            } 
-            if (prevRow && !(isSingleAndDragged(prevRow) && isHeader(draggedItem))) {
-                return false;
-            }
-            return true;
-
+            return !(
+                isSingleAndDragged(dataRow) ||
+                (prevRow && !(isSingleAndDragged(prevRow) && isHeader(draggedItem)))
+            )
         }
 
         return formFields.map((row, i) => {
