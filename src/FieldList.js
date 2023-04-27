@@ -1,29 +1,5 @@
 import React from "react";
 
-const Field = ({id, title}) => {
-    handleDragStart = (e) => {
-        // use field type to set draggedItem
-        // {fieldType: 'number'}
-    };
-
-    return (
-        <div id={id} onDragStart={handleDragStart}>
-            <div 
-                id="dragHandle" 
-                style={{
-                    color: "rgb(203, 214, 226)", 
-                    lineHeight: 0.3, 
-                    margin: "0px auto", 
-                    whiteSpace: "pre-line", 
-                    fontSize: "18px"}}>
-            ...
-            ...
-            </div>
-            <div>{title}</div>
-        </div>
-    );
-}
-
 const fields ={ 
     "singleLinedText": "Single-lined Text",
     "number": "Number",
@@ -34,6 +10,23 @@ const fields ={
     "checkboxes": "Checkboxes",
     "header": "Header"
 };
+
+const Field = ({ id, title }) =>
+    <div id={id}>
+        <div 
+            id="dragHandle" 
+            style={{
+                color: "rgb(203, 214, 226)", 
+                lineHeight: 0.3, 
+                margin: "0px auto", 
+                whiteSpace: "pre-line", 
+                fontSize: "18px"}}>
+        ...
+        ...
+        </div>
+        <div>{title}</div>
+    </div>
+
 const hubspotFieldTypes = {fieldTypes: {
                 divider: "Divider",
                 text:"Single-line text",
@@ -56,7 +49,7 @@ const hubspotFieldTypes = {fieldTypes: {
             }
     }
 
-export const FieldList = () => (
+export const FieldList = () => 
     <div>
         <div>Form Fields</div>
         <hr></hr>
@@ -68,4 +61,3 @@ export const FieldList = () => (
             />
         ))}
     </div>
-);
