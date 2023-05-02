@@ -56,7 +56,6 @@ const FormField = ({
     handleClickOutside,
     setDraggedItem
 }) => {
-
     const {ref, isComponentActive, setIsComponentActive } = useComponentActive(false, handleClickOutside);
 
     const renderField = (label, type, options, preselected) => {
@@ -131,30 +130,32 @@ const FormField = ({
     const manageClick = (e, internalName) => {
         handleClick(e, internalName);
         setIsComponentActive(true);
-    }
+    };
 
     return (
-        <div 
-            ref={ref}
-            id={camelize(label)}
-            onClick={(e) => manageClick(e, internalName)}
-        >
-            <div className={`movableAreaContainer${isComponentActive ? '--visible': ''}`}>
-                <div
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, internalName, label, type)}
-                    onDragEnd={(e) => handleDragEnd(e)}
-                >
-                    <div className="formField">
-                        {type !== 'header' && <FieldLabel 
-                            label={label}
-                            internalName={internalName}
-                        />}
-                        {renderField(label, type, options, preselected)}
+            <div 
+                ref={ref}
+                id={camelize(label)}
+                onClick={(e) => manageClick(e, internalName)}
+            >
+                <div className={`movableAreaContainer${isComponentActive ? '--visible': ''}`}>
+                    <div
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, internalName, label, type)}
+                        onDragEnd={(e) => handleDragEnd(e)}
+                    >
+                        <div className="formField">
+                            {type !== 'header' && 
+                                <FieldLabel 
+                                    label={label}
+                                    internalName={internalName}
+                                />
+                            }
+                            {renderField(label, type, options, preselected)}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
     )
 }
 
@@ -167,7 +168,6 @@ const FormRow = ({
     rowId,
     handleDrop
 }) => {
-
     const isDragged = (dragItem) => Object.keys(dragItem).length > 0;
     const isDragExistingField = (dragItem) => isDragged(dragItem) && !!dragItem.internalName;
     const isCurrentFieldDragged = (dragItem, f) => isDragExistingField(dragItem) && isMatchDragField(dragItem, f);
@@ -198,14 +198,18 @@ const FormRow = ({
 
             return (
                 <>
-                    <RenderIf isTrue={isDragged(draggedItem) && hasLeftDropTarget(field, prevField)}>
-                        <DropTarget 
-                            row={rowId}
-                            column={i+1}
-                            placement={"vertical"} 
-                            handleDrop={handleDrop}
-                        />
-                    </RenderIf>
+                    <div
+                        style={{ width: '0', zIndex: '1'}}
+                    >
+                        <RenderIf isTrue={isDragged(draggedItem) && hasLeftDropTarget(field, prevField)}>
+                            <DropTarget 
+                                row={rowId}
+                                column={i+1}
+                                placement={"vertical"} 
+                                handleDrop={handleDrop}
+                            />
+                        </RenderIf>
+                    </div>
                     <FormField 
                         {...field} 
                         handleClick={handleClick} 
@@ -226,13 +230,14 @@ const FormRow = ({
     }
 
     return (
-        <div 
-            wrap="nowrap" 
-            direction="row" 
-            className="formFieldFullGroupContainer" 
-            style={{ display: 'flex' }}
-        >
-            {renderRow()}
+        <div className="formFieldFullGroupContainer">
+            <div 
+                wrap="nowrap" 
+                direction="row"
+                style={{ display: 'flex', maxWidth: '100%', width: '100%', justifyContent: "flex-start", alignItems: "flex-start", boxSizing: "border-box" }}
+            >
+                {renderRow()}
+            </div>
         </div>
     )
 }
@@ -265,21 +270,43 @@ const DropTarget = ({
     const renderDropTarget = () => {
         switch(placement) {
             case "horizontal":
-                return <div 
+                return (
+                    <div
+                        className="dropzoneHolder"
+                        style={{ position: 'relative', boxSizing: 'border-box'}}
+                    >
+                        <div 
                             className="fieldGroupDropTarget" 
-                            onDragOver={(e) => handleDragOver(e)}
-                            onDragLeave={(e) => handleDragLeave(e)}
-                            onDrop={(e) => handleDrop(e)}
                             style={{ height: '18px', width: '479px', border: '2px dashed #7087E7', borderRadius: '6px', borderColor: '#7087E7', backgroundColor: isDraggingOver ? '#7087E7' : '#DDE4FF' }}
                         ></div>
-            case "vertical":
-                return <div 
-                            className="fieldDropTarget" 
+                        <div
                             onDragOver={(e) => handleDragOver(e)}
                             onDragLeave={(e) => handleDragLeave(e)}
                             onDrop={(e) => handleDrop(e)}
-                            style={{ height: '40px', width: '21px', border: '2px dashed #7087E7', borderRadius: '6px', borderColor: '#7087E7', backgroundColor: isDraggingOver ? '#7087E7' : '#DDE4FF' }}
+                            style={{ height: '65px', top: '-25px', width: '100%', zIndex: '1', position: 'absolute' }}
                         ></div>
+                    </div>
+                )
+                
+            case "vertical":
+                return (
+                        <div
+                            className="dropzoneHolder"
+                            style={{ position: 'relative', boxSizing: 'border-box' }}
+                        >
+                            <div 
+                                className="fieldDropTarget" 
+                                style={{ height: '40px', width: '21px', border: '2px dashed #7087E7', borderRadius: '6px', borderColor: '#7087E7', backgroundColor: isDraggingOver ? '#7087E7' : '#DDE4FF', zIndex: '1' }}
+                            ></div>
+                            <div
+                                onDragOver={(e) => handleDragOver(e)}
+                                onDragLeave={(e) => handleDragLeave(e)}
+                                onDrop={(e) => handleDrop(e)}
+                                style={{ zIndex: '2', top: '-20px', left: '-10px', width: '30px', height: '80px', position: "absolute", boxSizing: 'border-box'}}
+                            >
+                            </div>
+                        </div>
+                        )
             default:
                 return null;
         }
@@ -321,13 +348,17 @@ const Form = ({
 
                 return (
                     <>
-                        <RenderIf isTrue={isDragged(draggedItem) && hasTopDropTarget(row, prevRow)}>
-                            <DropTarget
-                                row={i+1}
-                                placement={"horizontal"}
-                                handleDrop={handleDrop}
-                            />
-                        </RenderIf>
+                        <div
+                            style={{ paddingTop: '6px', paddingLeft: '45px', paddingRight: '18px', width: '100%', height: '16px'}}
+                        >
+                            <RenderIf isTrue={isDragged(draggedItem) && hasTopDropTarget(row, prevRow)}>
+                                <DropTarget
+                                    row={i+1}
+                                    placement={"horizontal"}
+                                    handleDrop={handleDrop}
+                                />
+                            </RenderIf>
+                        </div>
                         <FormRow 
                             fields={row} 
                             handleClick={handleClick} 
@@ -393,7 +424,7 @@ export const FormEditor = ({
     };
 
     return (
-        <form>
+        <form style={{width: "100%"}}>
             { formFields == false 
                 ?   <EmptyForm /> 
                 :   

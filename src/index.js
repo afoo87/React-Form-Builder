@@ -26,6 +26,10 @@ const fourFields = [[{
     type: "single-lined text",
     label: 'nickname',
     internalName: 'nickname2'
+}], [{
+    type: "header",
+    label: 'new header',
+    internalName: 'header2'
 }]];
 
 const root = createRoot(document.getElementById("root"));
