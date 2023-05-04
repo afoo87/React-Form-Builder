@@ -1,0 +1,47 @@
+.dashed-dropzone {
+    border: 2px dashed #7087E7;
+    border-radius: 6px; 
+    border-color: #7087E7;
+    background-color: #DDE4FF;
+}
+
+.dashed-dropzone-hover {
+    background-color: #7087E7;
+}
+
+.dashed-dropzone--vertical {
+    height: 40px; 
+    width: 21px;
+}
+
+.dashed-dropzone--horizontal {
+    height: 18px; 
+    width: 479px;
+}
+
+.drop-target-container--horizontal { 
+    padding-top: 6px; 
+    padding-left: 45px;
+    padding-right: 18px; 
+    width: 100%;
+    height: 16px;
+}
+
+.form-field-dropzone {
+    position: absolute !important;
+    z-index: 1;
+}
+
+.form-field-dropzone--vertical {
+    z-index: 2; 
+    top: -20px; 
+    left: -10px; 
+    width: 30px; 
+    height: 80px;
+}
+
+.form-field-dropzone--horizontal {
+    height: 65px;
+    top: -25px; 
+    width: 100%;
+}
