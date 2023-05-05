@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { CreatePropertyModal } from "../src/CreatePropertyModal";
+import { CreatePropertyModal } from "../src/components/CreatePropertyModal";
 import {
     buttonWithClass,
     element,

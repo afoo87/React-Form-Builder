@@ -6,7 +6,7 @@ import {
 } from "@testing-library/react";
 import ReactDOM from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { FormEditor } from "../src/FormEditor";
+import { FormEditor } from "../src/components/FormEditor/FormEditor";
 import {
     camelize,
     clickAndWait,

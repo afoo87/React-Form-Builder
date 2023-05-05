@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { FieldList } from "../src/FieldList";
+import { FieldList } from "../src/components/FieldList";
 
 describe("FieldList", () => {
 

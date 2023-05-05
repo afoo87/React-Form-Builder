@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot} from "react-dom/client";
-import { FormEditor } from "./FormEditor";
+import { FormEditor } from "./components/FormEditor/FormEditor";
 
 const fourFields = [[{
     type: "single-lined text",

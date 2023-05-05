@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { DemoForm } from "../src/DemoForm";
+import { DemoForm } from "../src/components/DemoForm";
 
 describe("DemoForm", () => {
     
