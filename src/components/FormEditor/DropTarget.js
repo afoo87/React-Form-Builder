@@ -28,7 +28,8 @@ const DashedDropzone = ({ placement, isDraggingOver }) =>
 export const DropTarget = ({ 
     placement, 
     row, 
-    column=null 
+    column=null,
+    handleDrop
 }) => {
     const [isDraggingOver, setIsDraggingOver] = useState(false);
 
@@ -42,13 +43,11 @@ export const DropTarget = ({
         setIsDraggingOver(false);
     }
 
-    const handleDrop = (e, row, column=null) => {
+    const handleDropTarget = (e, row, column=null) => {
         // Calculate Drop Target Location
         // Get id of dropped item
         // Apply changes
-        console.log(row);
-        console.log(column);
-        JSON.parse(e.dataTransfer.getData('text/plain'));
+        handleDrop(e, row, column);
     };
 
     return (
@@ -57,7 +56,7 @@ export const DropTarget = ({
                 <FormFieldDropzone
                     handleDragOver={(e) => handleDragOver(e)}
                     handleDragLeave={(e) => handleDragLeave(e)}
-                    handleDrop={(e) => handleDrop(e, row, column)}
+                    handleDrop={(e) => handleDropTarget(e, row, column)}
                     placement={placement}
                 />
                 <DashedDropzone 

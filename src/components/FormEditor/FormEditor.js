@@ -7,8 +7,10 @@ import {
     isAnyFieldsDragged,
     isCurrentFieldDragged,
     isDragged,
+    isFormEmpty,
     isFullRow,
     isHeader,
+    isMoreThanOneFieldRow,
     isSingleAndDragged,
 } from "./helperFunctions";
 import styles from "./styles.css";
@@ -162,7 +164,7 @@ const Form = ({
                     </div>
                 )
             })
-}
+};
 
 
 export const FormEditor = ({
@@ -181,12 +183,10 @@ export const FormEditor = ({
         setActiveField(null);
     };
 
-    const handleDrop = (e, toRow, toCol) => {
-        // move or add item
-        // move into a custom hook
-        const element = draggedItem.internalName ? findDraggedItem(formFields, draggedItem.internalName) : draggedItem; // either a new element or look up the element in formFields by internalName and get index?
+    const moveField = (fields, draggedItem, toRow, toCol, fromRow, fromCol) => {
+        const element = draggedItem.internalName ? findDraggedItem(fields, draggedItem.internalName) : draggedItem; // either a new element or look up the element in formFields by internalName and get index?
         const newFormFields = [];
-        formFields.map((row, i) => {
+        fields.map((row, i) => {
             if (i === toRow) {
                 if (toCol === 0) {
                     newFormFields.push(element);
@@ -206,9 +206,77 @@ export const FormEditor = ({
         setFormFields(newFormFields);
     };
 
+    const findDraggedItem = (fields, internalName) => {
+        for (let r = 0; r < fields.length; r++) {
+            for (let c = 0; c < fields[r].length; c++) {
+                if (fields[r][c].internalName === internalName) {
+                    return fields[r][c];
+                }
+            }
+        }
+    };
+
+    const findDraggedItemLocation = (fields, internalName) => {
+        for (let r = 0; r < fields.length; r++) {
+            for (let c = 0; c < fields[r].length; c++) {
+                if (fields[r][c].internalName === internalName) {
+                    return { fromRow: r + 1, fromCol: c + 1};
+                }
+            }
+        }
+    };
+
+    const move = (arr, from, to) => {
+        const clone = [...arr];
+        Array.prototype.splice.call(clone, to, 0,
+          Array.prototype.splice.call(clone, from, 1)[0]
+        );
+        return clone;
+    };
+
+    const handleDrop = (e, toRow, toCol) => {
+        const element = draggedItem.internalName ? findDraggedItem(formFields, draggedItem.internalName) : draggedItem; // either a new element or look up the element in formFields by internalName and get index?
+        const  {fromRow, fromCol} = findDraggedItemLocation(formFields, draggedItem.internalName);
+        const newFormFields = [];
+        const posMatch = (pos, match_pos) => pos === match_pos;
+        const sameRow = (pos, to, from) => posMatch(pos, to) && posMatch(pos, from);
+        formFields.map((row, i) => {
+            if (sameRow(i+1, toRow, fromRow)) {
+                // moving between the same row
+                if (toCol !== null) {
+                    if (fromCol < toCol) {
+                        newFormFields.push(move(row, fromCol - 1, toCol - 2));
+                    } else {
+                        newFormFields.push(move(row, fromCol - 1, toCol - 1));
+                    }
+                }
+            } else {
+                if (posMatch(i+1, toRow)) {
+                    if (toCol === null) {
+                        // add element to a new row
+                        newFormFields.push([element]);
+                        newFormFields.push(row);
+                    } else {
+                        // add element to existing row
+                        newFormFields.push([...row.slice(0, toCol - 1), element, ...row.slice(toCol, row.length)]);
+                    }
+                }
+                // removes element from previous location
+                if (posMatch(i + 1, fromRow)) {
+                    if (isMoreThanOneFieldRow(row)) {
+                        newFormFields.push([...row.slice(0, fromCol - 1), ...row.slice(fromCol)]);
+                    }
+                } else {
+                    newFormFields.push(row)
+                }
+            }
+        });
+        setFormFields(newFormFields);
+    };
+
     return (
         <form style={{width: "100%"}}>
-            { formFields.length === 0 
+            { isFormEmpty(formFields)
                 ?   <EmptyForm /> 
                 :   
                     <Form 

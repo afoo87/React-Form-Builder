@@ -1,3 +1,10 @@
+export const camelize = (str) => {
+  return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
+    if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+    return index === 0 ? match.toLowerCase() : match.toUpperCase();
+  });
+};
+
 export const isDragged = (dragItem) => Object.keys(dragItem).length > 0;
 
 export const isHeader = f => f.type === 'header';
@@ -16,9 +23,6 @@ export const isSingleFieldRow = row => row.length === 1;
 
 export const isSingleAndDragged = (row, dragItem) =>  isSingleFieldRow(row) && isMatchDragField(dragItem, row[0]);
 
-export const camelize = (str) => {
-    return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
-      if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
-      return index === 0 ? match.toLowerCase() : match.toUpperCase();
-    });
-};
+export const isMoreThanOneFieldRow = (row) => row.length > 1;
+
+export const isFormEmpty = (fields) => fields.length === 0;
