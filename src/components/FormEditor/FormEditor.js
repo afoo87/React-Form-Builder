@@ -12,6 +12,7 @@ import {
     isHeader,
     isMoreThanOneFieldRow,
     isSingleAndDragged,
+    isSingleFieldRow,
 } from "./helperFunctions";
 import styles from "./styles.css";
 
@@ -236,39 +237,47 @@ export const FormEditor = ({
 
     const handleDrop = (e, toRow, toCol) => {
         const element = draggedItem.internalName ? findDraggedItem(formFields, draggedItem.internalName) : draggedItem; // either a new element or look up the element in formFields by internalName and get index?
-        const  {fromRow, fromCol} = findDraggedItemLocation(formFields, draggedItem.internalName);
+        const {fromRow, fromCol} = findDraggedItemLocation(formFields, draggedItem.internalName);
         const newFormFields = [];
-        const posMatch = (pos, match_pos) => pos === match_pos;
-        const sameRow = (pos, to, from) => posMatch(pos, to) && posMatch(pos, from);
+        const positionMatch = (pos, match_pos) => pos === match_pos;
+        const rowPosMatch = (pos, to, from) => positionMatch(pos, to) && positionMatch(pos, from);
         formFields.map((row, i) => {
-            if (sameRow(i+1, toRow, fromRow)) {
+            if (rowPosMatch(i+1, toRow, fromRow) && toCol !== null) {
                 // moving between the same row
-                if (toCol !== null) {
-                    if (fromCol < toCol) {
-                        newFormFields.push(move(row, fromCol - 1, toCol - 2));
-                    } else {
-                        newFormFields.push(move(row, fromCol - 1, toCol - 1));
-                    }
+                if (fromCol < toCol) {
+                    newFormFields.push(move(row, fromCol - 1, toCol - 2));
+                } else {
+                    newFormFields.push(move(row, fromCol - 1, toCol - 1));
+                }
+            } else if (rowPosMatch(i+1, toRow, fromRow) && toCol === null) {
+                // moving to a new row just one above
+                newFormFields.push([element]);
+                newFormFields.push([...row.slice(0, fromCol - 1), ...row.slice(fromCol)]);
+            } else if (positionMatch(i+1, fromRow) && toCol === null) {
+                // moving to a new row
+                //remove element from existing row
+                if (isMoreThanOneFieldRow(row)) {
+                    newFormFields.push([...row.slice(0, fromCol - 1), ...row.slice(fromCol)]);
+                }
+            } else if (positionMatch(i+1, toRow) && toCol === null) {
+                // add element to a new row
+                newFormFields.push([element]);
+                // append former row in row position
+                newFormFields.push(row);
+            } else if (positionMatch(i+1, fromRow) && toCol !== null) {
+                // remove element from existing row and append edited row
+                if (isMoreThanOneFieldRow(row)) {
+                    newFormFields.push([...row.slice(0, fromCol - 1), ...row.slice(fromCol)]);
+                }
+            } else if (positionMatch(i+1, toRow) && toCol !== null) {
+                // add element to an existing row and append edited row
+                if (toCol === 1) {
+                    newFormFields.push([element, ...row.slice(toCol - 1, row.length)]);
+                } else {
+                    newFormFields.push([...row.slice(0, toCol - 1), element, ...row.slice(toCol - 1, row.length)]);
                 }
             } else {
-                if (posMatch(i+1, toRow)) {
-                    if (toCol === null) {
-                        // add element to a new row
-                        newFormFields.push([element]);
-                        newFormFields.push(row);
-                    } else {
-                        // add element to existing row
-                        newFormFields.push([...row.slice(0, toCol - 1), element, ...row.slice(toCol, row.length)]);
-                    }
-                }
-                // removes element from previous location
-                if (posMatch(i + 1, fromRow)) {
-                    if (isMoreThanOneFieldRow(row)) {
-                        newFormFields.push([...row.slice(0, fromCol - 1), ...row.slice(fromCol)]);
-                    }
-                } else {
-                    newFormFields.push(row)
-                }
+                newFormFields.push(row);
             }
         });
         setFormFields(newFormFields);
