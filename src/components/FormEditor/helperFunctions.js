@@ -1,3 +1,11 @@
+export const arrMove = (arr, from, to) => {
+  const clone = [...arr];
+  Array.prototype.splice.call(clone, to, 0,
+    Array.prototype.splice.call(clone, from, 1)[0]
+  );
+  return clone;
+};
+
 export const camelize = (str) => {
   return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
     if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
